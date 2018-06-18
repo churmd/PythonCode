@@ -3,15 +3,15 @@ import tkinter
 import random
 
 class Cell(tkinter.Button):
-    def __init__(self, master, row, col, symbol=" "):
+    def __init__(self, master, row, col):
         tkinter.Button.__init__(self, master)
-        self.config(text = " ", command = self.reveal, bg = "blue")
+        onClick = lambda : master.cellClicked(row, col)
+        self.config(text = " ", command = onClick, bg = "blue")
         self.grid(row=row, column=col)
-        self.symbol = symbol
 
-    def reveal(self):
+    def reveal(self, symbol):
         print("Revealing!")
-        self.config(text = self.symbol, bg = "red")
+        self.config(text = symbol, bg = "red")
 
 class Game(tkinter.Tk):
     def __init__(self):
@@ -40,5 +40,11 @@ class Game(tkinter.Tk):
             self.cellDict[cell] = -1
             for sur in self.surCells(cell):
                 self.cellDict[sur] += 1
-        makeButton = lambda x,y : Cell(self,x,y,str(self.cellDict[(x,y)]))
-        self.buttons = {(x,y) : makeButton(x,y) for x in sz for y in sz}
+        self.buttons = {(x,y) : Cell(self,x,y) for x in sz for y in sz}
+
+    def cellClicked(self, row, col):
+        print("clicked " + str((row, col)))
+        coord = (row, col)
+        val = self.cellDict[coord]
+        symbol = "X" if val==-1 else str(val)
+        self.buttons[coord].reveal(symbol)
