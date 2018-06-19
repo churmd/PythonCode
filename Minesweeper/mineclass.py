@@ -10,8 +10,7 @@ class Cell(tkinter.Button):
         self.grid(row=row, column=col)
 
     def reveal(self, symbol):
-        print("Revealing!")
-        self.config(text = symbol, bg = "red")
+        self.config(text = symbol, state = "disabled", bg = "red")
 
 class Game(tkinter.Tk):
     def __init__(self):
@@ -43,8 +42,24 @@ class Game(tkinter.Tk):
         self.buttons = {(x,y) : Cell(self,x,y) for x in sz for y in sz}
 
     def cellClicked(self, row, col):
-        print("clicked " + str((row, col)))
         coord = (row, col)
         val = self.cellDict[coord]
-        symbol = "X" if val==-1 else str(val)
-        self.buttons[coord].reveal(symbol)
+        if val == -1:
+            for mine in self.getMines():
+                self.buttons[mine].reveal("X")
+        else:
+            self.buttons[coord].reveal(str(val))
+
+    def getMines(self):
+        isMine = lambda vk : vk[0] == -1
+        justCoord = lambda vk : vk[1]
+        cellValKey = zip(self.cellDict.values(), self.cellDict.keys())
+        mines = map(justCoord, filter(isMine, cellValKey))
+        return mines
+
+    def getNonMines(self):
+        isNotMine = lambda vk : vk[0] != -1
+        justCoord = lambda vk : vk[1]
+        cellValKey = zip(self.cellDict.values(), self.cellDict.keys())
+        notMines = map(justCoord, filter(isNotMine, cellValKey))
+        return notMines
