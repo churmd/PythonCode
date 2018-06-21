@@ -3,9 +3,9 @@ import tkinter
 import random
 
 class Cell(tkinter.Button):
-    def __init__(self, master, row, col):
+    def __init__(self, master, game, row, col):
         tkinter.Button.__init__(self, master)
-        onClick = lambda : master.cellClicked(row, col)
+        onClick = lambda : game.cellClicked(row, col)
         self.config(text = " ", command = onClick,
                     bg = "blue", fg = "black", height = 1,
                      width = 1, disabledforeground = "black")
@@ -24,6 +24,18 @@ class Game(tkinter.Frame):
         self.numMine = 10
         self.cellDict = {}
         self.buttons = {}
+        self.clickCount = 0
+
+        self.top = tkinter.Frame(self)
+        self.top.pack()
+        self.clicks = tkinter.Label(self.top, text = "Clicks")
+        self.clicks.pack(side = "left")
+        self.count = tkinter.Label(self.top, text = self.clickCount)
+        self.count.pack(side = "left")
+
+        self.grid = tkinter.Frame(self)
+        self.grid.pack()
+
         self.newBoard()
 
     def surCells(self, coord):
@@ -44,10 +56,11 @@ class Game(tkinter.Frame):
             self.cellDict[cell] = -1
             for sur in self.surCells(cell):
                 self.cellDict[sur] += 1
-        self.buttons = {(x,y) : Cell(self,x,y) for x in sz for y in sz}
-        self.pack()
+        self.buttons = {(x,y) : Cell(self.grid,self,x,y) for x in sz for y in sz}
 
     def cellClicked(self, row, col):
+        self.clickCount += 1
+        self.count.config(text = self.clickCount)
         coord = (row, col)
         val = self.cellDict[coord]
         if val == -1:
