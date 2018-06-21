@@ -2,5 +2,7 @@
 import tkinter
 import mineclass
 
-window = mineclass.Game()
-window.mainloop()
+if __name__ == "__main__":
+        window = tkinter.Tk()
+        game = mineclass.Game(window)
+        window.mainloop()

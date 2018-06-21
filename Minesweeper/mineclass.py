@@ -11,12 +11,15 @@ class Cell(tkinter.Button):
                      width = 1, disabledforeground = "black")
         self.grid(row=row, column=col)
 
-    def reveal(self, symbol):
-        self.config(text = symbol, state = "disabled", bg = "gray")
+    def revealMine(self):
+        self.config(text = "X", state = "disabled", bg = "red")
 
-class Game(tkinter.Tk):
-    def __init__(self):
-        tkinter.Tk.__init__(self)
+    def revealNum(self, number):
+        self.config(text = str(number), state = "disabled", bg = "gray")
+
+class Game(tkinter.Frame):
+    def __init__(self, master):
+        tkinter.Frame.__init__(self, master)
         self.bSize = 8
         self.numMine = 10
         self.cellDict = {}
@@ -42,15 +45,16 @@ class Game(tkinter.Tk):
             for sur in self.surCells(cell):
                 self.cellDict[sur] += 1
         self.buttons = {(x,y) : Cell(self,x,y) for x in sz for y in sz}
+        self.pack()
 
     def cellClicked(self, row, col):
         coord = (row, col)
         val = self.cellDict[coord]
         if val == -1:
             for mine in self.getMines():
-                self.buttons[mine].reveal("X")
+                self.buttons[mine].revealMine()
         else:
-            self.buttons[coord].reveal(str(val))
+            self.buttons[coord].revealNum(val)
 
     def getMines(self):
         isMine = lambda vk : vk[0] == -1
