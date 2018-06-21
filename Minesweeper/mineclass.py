@@ -6,11 +6,13 @@ class Cell(tkinter.Button):
     def __init__(self, master, row, col):
         tkinter.Button.__init__(self, master)
         onClick = lambda : master.cellClicked(row, col)
-        self.config(text = " ", command = onClick, bg = "blue")
+        self.config(text = " ", command = onClick,
+                    bg = "blue", fg = "black", height = 1,
+                     width = 1, disabledforeground = "black")
         self.grid(row=row, column=col)
 
     def reveal(self, symbol):
-        self.config(text = symbol, state = "disabled", bg = "red")
+        self.config(text = symbol, state = "disabled", bg = "gray")
 
 class Game(tkinter.Tk):
     def __init__(self):
