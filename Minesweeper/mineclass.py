@@ -5,6 +5,7 @@ import random
 class Cell(tkinter.Button):
     def __init__(self, master, game, row, col):
         tkinter.Button.__init__(self, master)
+        self.clicked = False
         onClick = lambda : game.cellClicked(row, col)
         self.config(text = " ", command = onClick,
                     bg = "blue", fg = "black", height = 1,
@@ -12,9 +13,11 @@ class Cell(tkinter.Button):
         self.grid(row=row, column=col)
 
     def revealMine(self):
+        self.clicked = True
         self.config(text = "X", state = "disabled", bg = "red")
 
     def revealNum(self, number):
+        self.clicked = True
         self.config(text = str(number), state = "disabled", bg = "gray")
 
 class Game(tkinter.Frame):
@@ -25,16 +28,30 @@ class Game(tkinter.Frame):
         self.cellDict = {}
         self.buttons = {}
         self.clickCount = 0
+        self.state = 0
 
         self.top = tkinter.Frame(self)
         self.top.pack()
         self.clicks = tkinter.Label(self.top, text = "Clicks")
-        self.clicks.pack(side = "left")
+        self.clicks.pack(side = tkinter.LEFT, anchor = "w")
         self.count = tkinter.Label(self.top, text = self.clickCount)
-        self.count.pack(side = "left")
+        self.count.pack(side = tkinter.LEFT, anchor = "w")
+        self.gameState = tkinter.Label(self.top, text = "    ")
+        self.gameState.pack(side = tkinter.RIGHT, anchor = "e")
 
         self.grid = tkinter.Frame(self)
         self.grid.pack()
+
+        self.options = tkinter.Frame(self)
+        self.options.pack()
+        self.reset = tkinter.Button(self.options, text = "Reset", command = self.newBoard)
+        self.reset.pack(side = tkinter.LEFT)
+        self.easy = tkinter.Button(self.options, text = "Easy", command = self.easyBoard)
+        self.easy.pack(side = tkinter.LEFT)
+        self.medium = tkinter.Button(self.options, text = "Medium", command = self.mediumBoard)
+        self.medium.pack(side = tkinter.LEFT)
+        self.hard = tkinter.Button(self.options, text = "Hard", command = self.hardBoard)
+        self.hard.pack(side = tkinter.LEFT)
 
         self.newBoard()
 
@@ -48,6 +65,11 @@ class Game(tkinter.Frame):
         return sur
 
     def newBoard(self):
+        self.clickCount= 0
+        self.state = 0
+        self.gameState.config(text = "")
+        self.count.config(text = self.clickCount)
+
         sz = range(self.bSize)
         self.cellDict = {(x,y) : 0 for x in sz for y in sz}
         mines = random.sample(range(self.bSize*self.bSize), self.numMine)
@@ -66,9 +88,13 @@ class Game(tkinter.Frame):
         if val == -1:
             for mine in self.getMines():
                 self.buttons[mine].revealMine()
+            self.disableAll()
+            self.gameState.config(text = "Loss")
         else:
             self.buttons[coord].revealNum(val)
-
+            if self.isVictory():
+                self.disableAll()
+                self.gameState.config(text = "Victory")
     def getMines(self):
         isMine = lambda vk : vk[0] == -1
         justCoord = lambda vk : vk[1]
@@ -82,3 +108,30 @@ class Game(tkinter.Frame):
         cellValKey = zip(self.cellDict.values(), self.cellDict.keys())
         notMines = map(justCoord, filter(isNotMine, cellValKey))
         return notMines
+
+    def isVictory(self):
+        nonMines = self.getNonMines()
+        buttons = [self.buttons.get(m) for m in  nonMines]
+        for button in buttons:
+            if not button.clicked:
+                return False
+        return True
+
+    def disableAll(self):
+        for button in self.buttons.values():
+            button.config(state = "disabled")
+
+    def easyBoard(self):
+        self.bSize = 8
+        self.numMine = 10
+        self.newBoard()
+
+    def mediumBoard(self):
+        self.bSize = 16
+        self.numMine = 40
+        self.newBoard()
+
+    def hardBoard(self):
+        self.bSize = 24
+        self.numMine = 99
+        self.newBoard()
