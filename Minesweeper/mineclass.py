@@ -23,6 +23,8 @@ class Cell(tkinter.Button):
 class Game(tkinter.Frame):
     def __init__(self, master):
         tkinter.Frame.__init__(self, master)
+        self.pack()
+
         self.bSize = 8
         self.numMine = 10
         self.cellDict = {}
@@ -32,12 +34,10 @@ class Game(tkinter.Frame):
 
         self.top = tkinter.Frame(self)
         self.top.pack()
-        self.clicks = tkinter.Label(self.top, text = "Clicks")
-        self.clicks.pack(side = tkinter.LEFT, anchor = "w")
-        self.count = tkinter.Label(self.top, text = self.clickCount)
-        self.count.pack(side = tkinter.LEFT, anchor = "w")
-        self.gameState = tkinter.Label(self.top, text = "    ")
-        self.gameState.pack(side = tkinter.RIGHT, anchor = "e")
+        self.clicks = tkinter.Label(self.top, text = "Clicks" + str(self.clickCount))
+        self.clicks.pack(side = tkinter.LEFT, anchor = tkinter.W, padx = (10, 50))
+        self.gameState = tkinter.Label(self.top, text = "")
+        self.gameState.pack(side = tkinter.RIGHT, anchor = tkinter.E, padx = (50, 10))
 
         self.grid = tkinter.Frame(self)
         self.grid.pack()
@@ -68,7 +68,14 @@ class Game(tkinter.Frame):
         self.clickCount= 0
         self.state = 0
         self.gameState.config(text = "")
-        self.count.config(text = self.clickCount)
+        self.clicks.config(text = "Clicks: " + str(self.clickCount))
+        self.cellDict = {}
+        self.buttons = {}
+
+        for b in self.grid.grid_slaves():
+            b.destroy()
+        self.buttons = {}
+        self.cellDict = {}
 
         sz = range(self.bSize)
         self.cellDict = {(x,y) : 0 for x in sz for y in sz}
@@ -82,7 +89,7 @@ class Game(tkinter.Frame):
 
     def cellClicked(self, row, col):
         self.clickCount += 1
-        self.count.config(text = self.clickCount)
+        self.clicks.config(text = "Clicks: " + str(self.clickCount))
         coord = (row, col)
         val = self.cellDict[coord]
         if val == -1:
