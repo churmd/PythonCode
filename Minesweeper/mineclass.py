@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import tkinter
 import random
+"""The classses used to create a minsweeper game frame."""
 
 class Cell(tkinter.Button):
     """A button that represents a cell on the board."""
