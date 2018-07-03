@@ -3,7 +3,10 @@ import tkinter
 import random
 
 class Cell(tkinter.Button):
+    """A button that represents a cell on the board."""
+
     def __init__(self, master, game, row, col):
+        """Creates the button and places it in the grid."""
         tkinter.Button.__init__(self, master)
         self.clicked = False
         onClick = lambda : game.cellClicked(row, col)
@@ -13,25 +16,37 @@ class Cell(tkinter.Button):
         self.grid(row=row, column=col)
 
     def revealMine(self):
+        """Shows an X on the button and disables it."""
         self.clicked = True
         self.config(text = "X", state = "disabled", bg = "red")
 
     def revealNum(self, number):
+        """Shows the supplied number on the button and disables it."""
         self.clicked = True
         self.config(text = str(number), state = "disabled", bg = "gray")
 
 class Game(tkinter.Frame):
+    """A frame with all the UI and logic for a Minesweeper game."""
+
     def __init__(self, master):
+        """Initialises frame, starting setting and UI."""
         tkinter.Frame.__init__(self, master)
         self.pack()
 
+        #Initial game options
         self.bSize = 8
         self.numMine = 10
         self.cellDict = {}
         self.buttons = {}
         self.clickCount = 0
-        self.state = 0
 
+        self.initUI()
+
+        self.newBoard()
+
+    def initUI(self):
+        """Sets up the UI for the frame."""
+        #Top bar with game status
         self.top = tkinter.Frame(self)
         self.top.pack()
         self.clicks = tkinter.Label(self.top, text = "Clicks" + str(self.clickCount))
@@ -39,9 +54,11 @@ class Game(tkinter.Frame):
         self.gameState = tkinter.Label(self.top, text = "")
         self.gameState.pack(side = tkinter.RIGHT, anchor = tkinter.E, padx = (50, 10))
 
+        #Button grid of the game
         self.grid = tkinter.Frame(self)
         self.grid.pack()
 
+        #Bottom bar with reset/difficulty options
         self.options = tkinter.Frame(self)
         self.options.pack()
         self.reset = tkinter.Button(self.options, text = "Reset", command = self.newBoard)
@@ -53,9 +70,11 @@ class Game(tkinter.Frame):
         self.hard = tkinter.Button(self.options, text = "Hard", command = self.hardBoard)
         self.hard.pack(side = tkinter.LEFT)
 
-        self.newBoard()
-
     def surCells(self, coord):
+        """Returns the surrounding coordinates of a coordinate.
+        Includes diagonal corners.
+        Does not returns mine coordinatesself.
+        Does not return coordinates outside board size."""
         (row, col) = coord
         rows = range(row-1, row+2)
         cols = range(col-1, col+2)
@@ -65,8 +84,8 @@ class Game(tkinter.Frame):
         return sur
 
     def newBoard(self):
+        """Creates a new board."""
         self.clickCount= 0
-        self.state = 0
         self.gameState.config(text = "")
         self.clicks.config(text = "Clicks: " + str(self.clickCount))
         self.cellDict = {}
@@ -88,6 +107,7 @@ class Game(tkinter.Frame):
         self.buttons = {(x,y) : Cell(self.grid,self,x,y) for x in sz for y in sz}
 
     def cellClicked(self, row, col):
+        """Handles what happens when a grid button is clicked."""
         self.clickCount += 1
         self.clicks.config(text = "Clicks: " + str(self.clickCount))
         coord = (row, col)
@@ -102,7 +122,9 @@ class Game(tkinter.Frame):
             if self.isVictory():
                 self.disableAll()
                 self.gameState.config(text = "Victory")
+
     def getMines(self):
+        """Returns all mine coordinates."""
         isMine = lambda vk : vk[0] == -1
         justCoord = lambda vk : vk[1]
         cellValKey = zip(self.cellDict.values(), self.cellDict.keys())
@@ -110,6 +132,7 @@ class Game(tkinter.Frame):
         return mines
 
     def getNonMines(self):
+        """Returns all non-mine coordinates."""
         isNotMine = lambda vk : vk[0] != -1
         justCoord = lambda vk : vk[1]
         cellValKey = zip(self.cellDict.values(), self.cellDict.keys())
@@ -117,6 +140,9 @@ class Game(tkinter.Frame):
         return notMines
 
     def isVictory(self):
+        """Determines if the game has been won.
+        True if all non mine buttons clickedself.
+        False otherwise."""
         nonMines = self.getNonMines()
         buttons = [self.buttons.get(m) for m in  nonMines]
         for button in buttons:
@@ -125,20 +151,24 @@ class Game(tkinter.Frame):
         return True
 
     def disableAll(self):
+        """Disbales all buttons in the grid."""
         for button in self.buttons.values():
             button.config(state = "disabled")
 
     def easyBoard(self):
+        """Sets options for an easy board."""
         self.bSize = 8
         self.numMine = 10
         self.newBoard()
 
     def mediumBoard(self):
+        """Sets options for a medium board."""
         self.bSize = 16
         self.numMine = 40
         self.newBoard()
 
     def hardBoard(self):
+        """Sets options for a hard board."""
         self.bSize = 24
         self.numMine = 99
         self.newBoard()
