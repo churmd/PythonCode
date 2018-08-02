@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import pi3d
+from rotatingCamera import RotatingCamera
 
 """Practice using the pi3d library, following demo
     https://www.youtube.com/watch?v=_jdYhRDygAM."""
@@ -8,8 +9,12 @@ import pi3d
 #create display
 DISPLAY = pi3d.Display.create()
 
+#create mouse obj
+mymouse = pi3d.Mouse(restrict = False)
+mymouse.start()
+
 #create camera
-CAM = pi3d.Camera(eye = (0.0,0.0,-5.0))
+CAM = RotatingCamera(5, mymouse)
 
 #create keyboard obj
 mykeys = pi3d.Keyboard()
@@ -29,6 +34,8 @@ while DISPLAY.loop_running() :
         mykeys.close()
         DISPLAY.destory()
         break
+
+    CAM.update(mymouse)
 
     for cube in cubeList:
         cube.draw()
