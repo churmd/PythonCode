@@ -35,7 +35,7 @@ while DISPLAY.loop_running() :
         DISPLAY.destory()
         break
 
-    CAM.update(mymouse)
+    CAM.update(mymouse, mykeys)
 
     for cube in cubeList:
         cube.draw()
